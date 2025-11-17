@@ -159,7 +159,7 @@
 			},
 			"SchemaName": {
 				"type": "string",
-				"defaultValue": "dbo"
+				"defaultValue": "STG"
 			}
 		},
 		"annotations": []
