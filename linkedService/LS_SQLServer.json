@@ -1,0 +1,21 @@
+{
+	"name": "LS_SQLServer",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "DESKTOP-8OTJPKL\\CHUKKASQLSERVER",
+			"database": "DFDB_DEV",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "sa",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlM2VjMzk2ZC02N2VjLTRlZDktYTgwMS05NjU0MjY4NjY3ZTMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "SeilfHostedIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
