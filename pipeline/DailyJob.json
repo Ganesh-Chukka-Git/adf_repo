@@ -340,7 +340,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@item()",
+									"value": "@item().name",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
