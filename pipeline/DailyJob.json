@@ -49,7 +49,14 @@
 			{
 				"name": "Load Each File to Stg",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "File Available",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -426,6 +433,32 @@
 						"value": "@greater(length(activity('DS_Get Metadata').output.childItems),0)",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "FilesNotAvailable",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://prod-25.centralindia.logic.azure.com:443/workflows/4cdf985ed6954266aaa419e4b1fc0186/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=2O-gu8Ja18dlKHRE5PKwuW4PedQlu6g7src-S-bc9zk",
+								"body": {
+									"EmailType": "NoFile",
+									"PipelineName": "@{pipeline().Pipeline}",
+									"ActivityName": "GetMetadata",
+									"FileName": "N/A",
+									"ErrorMessage": "No files available in source folder on @{utcNow()}"
+								}
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "Casual Wait",
