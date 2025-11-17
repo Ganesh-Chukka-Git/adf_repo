@@ -354,6 +354,67 @@
 					"referenceName": "LS_SQLServer",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "PilineLog",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LoadDataIntoTargetTable",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[ETL].[SP_InsertPipelineLog]",
+					"storedProcedureParameters": {
+						"ActivityName": {
+							"value": {
+								"value": "@activity('Copy data from file to stg').name",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ErrorMessage": {
+							"value": {
+								"value": "@activity('Copy data from file to stg').error.message",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"FileName": {
+							"value": {
+								"value": "@activity('Copy data from file to stg').output",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Status": {
+							"value": "'Failed'",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQLServer",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
