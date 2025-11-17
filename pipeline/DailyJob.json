@@ -457,6 +457,23 @@
 									"ErrorMessage": "No files available in source folder on @{utcNow()}"
 								}
 							}
+						},
+						{
+							"name": "Fail Activity",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "FilesNotAvailable",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "\"Source file not found\"",
+								"errorCode": "\"1001\""
+							}
 						}
 					],
 					"ifTrueActivities": [
