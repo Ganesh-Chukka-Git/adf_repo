@@ -17,7 +17,21 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "DS_GetMetaData",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": {
+								"value": "@pipeline().parameters.Container",
+								"type": "Expression"
+							},
+							"Folder": {
+								"value": "@pipeline().parameters.Folder",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "@pipeline().parameters.FileName",
+								"type": "Expression"
+							}
+						}
 					},
 					"fieldList": [
 						"childItems"
