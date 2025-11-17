@@ -87,9 +87,9 @@
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "DS_Get Metadata",
+								"activity": "File Available",
 								"dependencyConditions": [
-									"Succeeded"
+									"Skipped"
 								]
 							}
 						],
@@ -103,7 +103,14 @@
 								{
 									"name": "Copy data from file to stg",
 									"type": "Copy",
-									"dependsOn": [],
+									"dependsOn": [
+										{
+											"activity": "Truncate Stg Tables",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
 									"policy": {
 										"timeout": "0.12:00:00",
 										"retry": 0,
@@ -176,6 +183,415 @@
 											}
 										}
 									]
+								},
+								{
+									"name": "Truncate Stg Tables",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "AddFileLog",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "LS_SQLServer",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": "TRUNCATE TABLE STG.STG_CUSTOMERS;\nTRUNCATE TABLE  STG.STG_ORDERS;\nTRUNCATE TABLE  STG.STG_PAYMENTS;\nTRUNCATE TABLE  STG.STG_SALES;\n"
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "DeleteFilesAfterLoad",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "Copy data from file to stg",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "DS_DeleteSourceFiles",
+											"type": "DatasetReference",
+											"parameters": {
+												"Container": {
+													"value": "@pipeline().parameters.Container",
+													"type": "Expression"
+												},
+												"Folder": {
+													"value": "@pipeline().parameters.Folder",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										},
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "LS_blobstorage",
+												"type": "LinkedServiceReference"
+											}
+										},
+										"enableLogging": true,
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								},
+								{
+									"name": "AddFileLog",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[ETL].[SP_InsertFileTracking]",
+										"storedProcedureParameters": {
+											"FileName": {
+												"value": {
+													"value": "@{item().name}",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQLServer",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "UpdateFileLog",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "DeleteFilesAfterLoad",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[ETL].[SP_UpdateFileTracking]",
+										"storedProcedureParameters": {
+											"FileName": {
+												"value": {
+													"value": "@{item().name}",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQLServer",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LookupFileLoadedOrNot",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT LoadStatus \nFROM ETL.FileData \nWHERE FileName = '@{item().name}'\n",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "DS_LookFilesLoadedOrNot",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									}
+								},
+								{
+									"name": "If File Loaded Already",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "LookupFileLoadedOrNot",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "Wait2",
+												"type": "Wait",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"waitTimeInSeconds": 1
+												}
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "Wait1",
+												"type": "Wait",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"waitTimeInSeconds": 1
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "LoadFileDatatoStgTables",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Load Each File to Stg",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[ETL].[SP_LoadStgFiles]"
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_SQLServer",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LoadDataIntoTargetTable",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LoadFileDatatoStgTables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[ETL].[SP_Load_CHFINALDATA]"
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_SQLServer",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "PilineLog",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LoadDataIntoTargetTable",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[ETL].[SP_InsertPipelineLog]",
+							"storedProcedureParameters": {
+								"ActivityName": {
+									"value": {
+										"value": "@activity('Copy data from file to stg').name",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"ErrorMessage": {
+									"value": {
+										"value": "@activity('Copy data from file to stg').error.message",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"FileName": {
+									"value": {
+										"value": "@activity('Copy data from file to stg').output",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"PipelineName": {
+									"value": {
+										"value": "@pipeline().Pipeline",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Status": {
+									"value": "'Failed'",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_SQLServer",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "File Available",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "DS_Get Metadata",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(length(activity('DS_Get Metadata').output.childItems),0)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "FilesNotAvailable",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "POST",
+										"headers": {},
+										"url": "https://prod-25.centralindia.logic.azure.com:443/workflows/4cdf985ed6954266aaa419e4b1fc0186/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=2O-gu8Ja18dlKHRE5PKwuW4PedQlu6g7src-S-bc9zk",
+										"body": {
+											"EmailType": "NoFile",
+											"PipelineName": "@{pipeline().Pipeline}",
+											"ActivityName": "GetMetadata",
+											"FileName": "N/A",
+											"ErrorMessage": "No files available in source folder on @{utcNow()}"
+										}
+									}
+								},
+								{
+									"name": "Fail Activity",
+									"type": "Fail",
+									"dependsOn": [
+										{
+											"activity": "FilesNotAvailable",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"message": "\"Source file not found\"",
+										"errorCode": "\"1001\""
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Casual Wait",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 5
+									}
 								}
 							]
 						}
@@ -206,8 +622,12 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DS_GetMetaData')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQLServer')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SourceFiletoStg')]",
-				"[concat(variables('factoryId'), '/datasets/DS_SyncFileToStg')]"
+				"[concat(variables('factoryId'), '/datasets/DS_SyncFileToStg')]",
+				"[concat(variables('factoryId'), '/datasets/DS_DeleteSourceFiles')]",
+				"[concat(variables('factoryId'), '/datasets/DS_LookFilesLoadedOrNot')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_blobstorage')]"
 			]
 		},
 		{
@@ -241,6 +661,50 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_DeleteSourceFiles')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_blobstorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Container": {
+						"type": "string"
+					},
+					"Folder": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Folder",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().Container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_blobstorage')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DS_GetMetaData')]",
@@ -284,6 +748,24 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_blobstorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_LookFilesLoadedOrNot')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQLServer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQLServer')]"
 			]
 		},
 		{
