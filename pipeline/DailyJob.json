@@ -49,14 +49,7 @@
 			{
 				"name": "Load Each File to Stg",
 				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "DS_Get Metadata",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -414,6 +407,36 @@
 				"linkedServiceName": {
 					"referenceName": "LS_SQLServer",
 					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "File Available",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "DS_Get Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(length(activity('DS_Get Metadata').output.childItems),0)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Casual Wait",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						}
+					]
 				}
 			}
 		],
