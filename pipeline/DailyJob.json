@@ -313,7 +313,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "SqlServerSource",
-									"sqlReaderQuery": "SELECT LoadStatus \nFROM ETL.FileData \nWHERE FileName = '@{item().name}'\n",
+									"sqlReaderQuery": {
+										"value": "SELECT LoadStatus \nFROM ETL.FileData \nWHERE FileName = '@{item().name}'\n",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -339,7 +342,29 @@
 								"expression": {
 									"value": "@if(equals(activity('Lookup').output.count,1))\n",
 									"type": "Expression"
-								}
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Wait2",
+										"type": "Wait",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"waitTimeInSeconds": 1
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "Wait1",
+										"type": "Wait",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"waitTimeInSeconds": 1
+										}
+									}
+								]
 							}
 						}
 					]
