@@ -1,0 +1,9 @@
+{
+	"name": "ADFChukkaGanesh",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "05bb47a7-8936-4801-888d-46020fb09006",
+		"tenantId": "2d263aa9-991e-4c09-aab0-3186dd5d4c4d"
+	}
+}
