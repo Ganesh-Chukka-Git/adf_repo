@@ -77,13 +77,14 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "BinarySource",
+									"type": "DelimitedTextSource",
 									"storeSettings": {
 										"type": "AzureBlobStorageReadSettings",
-										"recursive": true
+										"recursive": true,
+										"enablePartitionDiscovery": false
 									},
 									"formatSettings": {
-										"type": "BinaryReadSettings"
+										"type": "DelimitedTextReadSettings"
 									}
 								},
 								"sink": {
@@ -92,26 +93,20 @@
 									"sqlWriterUseTableLock": false,
 									"tableOption": "autoCreate"
 								},
-								"enableStaging": false
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
 							},
 							"inputs": [
 								{
-									"referenceName": "DS_SourceFiletoStgTable",
-									"type": "DatasetReference",
-									"parameters": {
-										"Container": {
-											"value": "@pipeline().parameters.Container",
-											"type": "Expression"
-										},
-										"Folder": {
-											"value": "@pipeline().parameters.Folder",
-											"type": "Expression"
-										},
-										"FileName": {
-											"value": "@item().FileName",
-											"type": "Expression"
-										}
-									}
+									"referenceName": "DS_SourceFiletoStg",
+									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
