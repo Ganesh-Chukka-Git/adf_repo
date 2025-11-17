@@ -158,7 +158,8 @@
 				"defaultValue": "*.csv"
 			},
 			"SchemaName": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "dbo"
 			}
 		},
 		"annotations": []
