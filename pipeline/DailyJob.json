@@ -340,7 +340,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@if(equals(activity('Lookup').output.count,1))\n",
+									"value": "@item()",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
