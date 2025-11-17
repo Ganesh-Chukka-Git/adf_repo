@@ -4,6 +4,21 @@
 	"parameters": {
 		"factoryName": {
 			"value": "ADFChukkaGanesh"
+		},
+		"LS_SQLServer_password": {
+			"value": ""
+		},
+		"LS_blobstorage_connectionString": {
+			"value": ""
+		},
+		"LS_SQLServer_properties_typeProperties_server": {
+			"value": "DESKTOP-8OTJPKL\\CHUKKASQLSERVER"
+		},
+		"LS_SQLServer_properties_typeProperties_database": {
+			"value": "DFDB_DEV"
+		},
+		"LS_SQLServer_properties_typeProperties_userName": {
+			"value": "sa"
 		}
 	}
 }
