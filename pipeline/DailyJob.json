@@ -322,6 +322,25 @@
 									"type": "DatasetReference"
 								}
 							}
+						},
+						{
+							"name": "If File Loaded Already",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "LookupFileLoadedOrNot",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@if(equals(activity('Lookup').output.count,1))\n",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
