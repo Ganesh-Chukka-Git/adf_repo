@@ -44,6 +44,25 @@
 						"type": "BinaryReadSettings"
 					}
 				}
+			},
+			{
+				"name": "Load Each File to Stg",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "DS_Get Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('DS_Get Metadata').output.childItems",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
