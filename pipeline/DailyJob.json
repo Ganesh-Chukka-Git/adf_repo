@@ -67,7 +67,14 @@
 						{
 							"name": "Copy data from file to stg",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Truncate Stg Tables",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -144,7 +151,14 @@
 						{
 							"name": "Truncate Stg Tables",
 							"type": "Script",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "AddFileLog",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -233,6 +247,42 @@
 							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[ETL].[SP_InsertFileTracking]",
+								"storedProcedureParameters": {
+									"FileName": {
+										"value": {
+											"value": "@{item().name}",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQLServer",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "UpdateFileLog",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "DeleteFilesAfterLoad",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[ETL].[SP_UpdateFileTracking]",
 								"storedProcedureParameters": {
 									"FileName": {
 										"value": {
