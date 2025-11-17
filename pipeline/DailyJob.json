@@ -117,7 +117,7 @@
 											"type": "Expression"
 										},
 										"FileName": {
-											"value": "@item()",
+											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
@@ -133,7 +133,7 @@
 											"type": "Expression"
 										},
 										"TableName": {
-											"value": "@concat(\r\n    'STG_',\r\n    split(substring(item().FileName, 0, lastIndexOf(item().FileName, '_')), '_')[0]\r\n)\r\n",
+											"value": "@concat(\n    'STG_',\n    split(\n        substring(item().name, 0, lastIndexOf(item().name, '_')),\n        '_'\n    )[0]\n)\n",
 											"type": "Expression"
 										}
 									}
