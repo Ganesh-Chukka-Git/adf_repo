@@ -380,6 +380,23 @@
 												"Time": "@{utcNow()}"
 											}
 										}
+									},
+									{
+										"name": "FileLoadedAlready",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "FIleAlreadyLoaded",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": "FilesAlreadyLoaded",
+											"errorCode": "DuplicateFiles"
+										}
 									}
 								]
 							}
