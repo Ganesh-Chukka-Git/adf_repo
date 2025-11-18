@@ -53,7 +53,7 @@
 					{
 						"activity": "File Available",
 						"dependencyConditions": [
-							"Skipped"
+							"Succeeded"
 						]
 					}
 				],
