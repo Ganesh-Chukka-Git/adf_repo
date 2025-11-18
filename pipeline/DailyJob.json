@@ -617,7 +617,19 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"url": "https://prod-25.centralindia.logic.azure.com:443/workflows/4cdf985ed6954266aaa419e4b1fc0186/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=2O-gu8Ja18dlKHRE5PKwuW4PedQlu6g7src-S-bc9zk",
+					"body": {
+						"Case": "Success",
+						"PipelineName": "@{pipeline().Pipeline}",
+						"Time": "@{utcNow()}"
+					}
+				}
 			},
 			{
 				"name": "Failure",
