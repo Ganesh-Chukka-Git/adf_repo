@@ -223,6 +223,80 @@
 									"value": "@equals(activity('Check Files Already Loaded Or Not').output.firstRow.FileCount, 1)",
 									"type": "Expression"
 								},
+								"ifFalseActivities": [
+									{
+										"name": "Copy file data into stg table",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobStorageReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"writeBehavior": "insert",
+												"sqlWriterUseTableLock": false
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_SourceFiletoStg",
+												"type": "DatasetReference",
+												"parameters": {
+													"Container": {
+														"value": "@pipeline().parameters.Container",
+														"type": "Expression"
+													},
+													"Folder": {
+														"value": "@pipeline().parameters.Folder",
+														"type": "Expression"
+													},
+													"FileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_SyncFileToStg",
+												"type": "DatasetReference",
+												"parameters": {
+													"TableName": {
+														"value": "@concat(\n    'STG_',\n    split(\n        substring(item().name, 0, lastIndexOf(item().name, '_')),\n        '_'\n    )[0]\n)\n",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									}
+								],
 								"ifTrueActivities": [
 									{
 										"name": "File Already Loaded",
