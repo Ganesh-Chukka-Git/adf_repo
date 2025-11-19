@@ -30,7 +30,6 @@
 						}
 					},
 					"fieldList": [
-						"exists",
 						"childItems"
 					],
 					"storeSettings": {
