@@ -227,7 +227,14 @@
 									{
 										"name": "Copy file data into stg table",
 										"type": "Copy",
-										"dependsOn": [],
+										"dependsOn": [
+											{
+												"activity": "Truncate Stg Files",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -299,6 +306,32 @@
 												}
 											}
 										]
+									},
+									{
+										"name": "Truncate Stg Files",
+										"type": "Script",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer",
+											"type": "LinkedServiceReference"
+										},
+										"typeProperties": {
+											"scripts": [
+												{
+													"type": "Query",
+													"text": "Truncate Table STG.STG_Customers;\nTruncate Table STG.STG_Orders;\nTruncate Table STG.STG_Payments;\nTruncate Table STG.STG_Sales;"
+												}
+											],
+											"scriptBlockExecutionTimeout": "02:00:00"
+										}
 									}
 								],
 								"ifTrueActivities": [
