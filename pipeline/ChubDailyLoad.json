@@ -338,6 +338,10 @@
 			"FileName": {
 				"type": "string",
 				"defaultValue": "*.csv"
+			},
+			"STagingSchemaName": {
+				"type": "string",
+				"defaultValue": "STG"
 			}
 		},
 		"annotations": []
