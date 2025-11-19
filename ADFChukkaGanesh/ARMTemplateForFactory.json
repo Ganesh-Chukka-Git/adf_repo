@@ -1711,12 +1711,12 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Daily Job Chub')]",
+			"name": "[concat(parameters('factoryName'), '/Daily Chubb Job')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -1730,9 +1730,9 @@
 				"typeProperties": {
 					"recurrence": {
 						"frequency": "Minute",
-						"interval": 5,
-						"startTime": "2025-11-19T16:15:00",
-						"endTime": "2025-11-30T10:39:00",
+						"interval": 15,
+						"startTime": "2025-11-19T16:25:00",
+						"endTime": "2025-11-19T18:00:00",
 						"timeZone": "India Standard Time"
 					}
 				}
