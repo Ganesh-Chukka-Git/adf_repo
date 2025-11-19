@@ -62,7 +62,23 @@
 						"value": "@equals(length(activity('Get Metadata Files').output.childItems), 0)",
 						"type": "Expression"
 					},
-					"ifFalseActivities": [
+					"ifTrueActivities": [
+						{
+							"name": "Wait For Sometime",
+							"type": "Wait",
+							"dependsOn": [
+								{
+									"activity": "No Files Send Email",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						},
 						{
 							"name": "No Files Send Email",
 							"type": "WebActivity",
@@ -83,16 +99,22 @@
 									"message": "No files were found in the source folder on @{utcNow()}."
 								}
 							}
-						}
-					],
-					"ifTrueActivities": [
+						},
 						{
-							"name": "Wait For Sometime",
-							"type": "Wait",
-							"dependsOn": [],
+							"name": "Fails Not Available So Job Fails",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "Wait For Sometime",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
-								"waitTimeInSeconds": 5
+								"message": "Fails Not Available So Job Fails",
+								"errorCode": "Files Not There"
 							}
 						}
 					]
