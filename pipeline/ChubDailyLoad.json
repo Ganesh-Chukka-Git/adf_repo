@@ -45,9 +45,20 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(length(activity('GetMetadata1').output.childItems), 0)\n",
+						"value": "@equals(length(activity('Get Metadata Files').output), 0)",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait for some time",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 10
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "No Files Send Email",
