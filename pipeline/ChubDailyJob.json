@@ -34,7 +34,7 @@
 						}
 					},
 					"fieldList": [
-						"childItems"
+						"exists"
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
@@ -59,7 +59,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(length(activity('Get Metadata Files').output.childItems), 0)",
+						"value": "@equals(activity('Get Metadata Files').output.exists, true)",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
