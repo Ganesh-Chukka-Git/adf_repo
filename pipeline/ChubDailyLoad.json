@@ -62,6 +62,17 @@
 						"value": "@equals(length(activity('Get Metadata Files').output.childItems), 0)",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait For Sometime to Proceed",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "Wait For Sometime",
