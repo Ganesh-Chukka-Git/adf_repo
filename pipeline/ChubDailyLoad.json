@@ -427,6 +427,23 @@
 												"type": "Expression"
 											}
 										}
+									},
+									{
+										"name": "Job Fails files loaded",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "File Already Loaded",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": "Job Fails due to file already loaded",
+											"errorCode": "File Already Loaded"
+										}
 									}
 								]
 							}
