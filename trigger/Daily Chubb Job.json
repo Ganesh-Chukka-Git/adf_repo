@@ -8,6 +8,12 @@
 				"pipelineReference": {
 					"referenceName": "ChubDailyLoad",
 					"type": "PipelineReference"
+				},
+				"parameters": {
+					"Container": "containerfiles",
+					"Folder": "inputsource/files",
+					"FileName": "*.csv",
+					"STagingSchemaName": "STG"
 				}
 			}
 		],
