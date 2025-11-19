@@ -17,9 +17,25 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "DS_GetFileNames",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": {
+								"value": "@pipeline().parameters.ContainerSource",
+								"type": "Expression"
+							},
+							"Folder": {
+								"value": "@pipeline().parameters.FolderSource",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "*.csv",
+								"type": "Expression"
+							}
+						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
 						"enablePartitionDiscovery": false
@@ -28,8 +44,54 @@
 						"type": "DelimitedTextReadSettings"
 					}
 				}
+			},
+			{
+				"name": "Files Available Or Not",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(length(activity('Get Metadata Files').output.childItems), 0)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Wait for some time",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 20
+							}
+						}
+					]
+				}
 			}
 		],
+		"parameters": {
+			"ContainerSource": {
+				"type": "string",
+				"defaultValue": "containerfiles"
+			},
+			"FolderSource": {
+				"type": "string",
+				"defaultValue": "inputsource/files"
+			},
+			"ContainerTarget": {
+				"type": "string"
+			},
+			"FolderTarget": {
+				"type": "string"
+			}
+		},
 		"annotations": []
 	}
 }
