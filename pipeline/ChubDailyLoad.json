@@ -528,8 +528,8 @@
 					"method": "POST",
 					"url": "https://prod-13.centralindia.logic.azure.com:443/workflows/585813d80b06425aa07b07ca8815d00e/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=bMraAaMH_qBoTYwmDEvGNpq5Z4fBQTPf2Aq8vbLDwdY",
 					"body": {
-						"subject": "ADF Success: File Loaded",
-						"message": "File successfully copied to target at @{utcnow()}."
+						"subject": "Job Success: Data Loaded",
+						"message": "Job successful and Files Data copied to target Table at @{utcnow()}."
 					}
 				}
 			},
