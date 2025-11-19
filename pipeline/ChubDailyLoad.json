@@ -445,9 +445,10 @@
 											},
 											"logStorageSettings": {
 												"linkedServiceName": {
-													"referenceName": "LS_blobstorage",
+													"referenceName": "LS_DeleteBlobFiles",
 													"type": "LinkedServiceReference"
-												}
+												},
+												"path": "deletecontainer/deletefiles"
 											},
 											"enableLogging": true,
 											"storeSettings": {
