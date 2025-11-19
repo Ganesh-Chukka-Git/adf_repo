@@ -1,0 +1,179 @@
+{
+	"name": "ChubDailyLoad",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_GetFiles",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": {
+								"value": "@pipeline().parameters.Container",
+								"type": "Expression"
+							},
+							"Folder": {
+								"value": "@pipeline().parameters.Folder",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "@pipeline().parameters.FileName",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "File Available Or Not",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(length(activity('Get Metadata Files').output.childItems), 0)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait For Sometime to Proceed",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Wait For Sometime",
+							"type": "Wait",
+							"dependsOn": [
+								{
+									"activity": "No Files Send Email",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						},
+						{
+							"name": "No Files Send Email",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://prod-13.centralindia.logic.azure.com:443/workflows/585813d80b06425aa07b07ca8815d00e/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=bMraAaMH_qBoTYwmDEvGNpq5Z4fBQTPf2Aq8vbLDwdY",
+								"body": {
+									"subject": "No Files Found in ADLS",
+									"message": "No files were found in the source folder on @{utcNow()}."
+								}
+							}
+						},
+						{
+							"name": "Fails Not Available So Job Fails",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "Wait For Sometime",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "Fails Not Available So Job Fails",
+								"errorCode": "Files Not There"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Files Not Available",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata Files",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-13.centralindia.logic.azure.com:443/workflows/585813d80b06425aa07b07ca8815d00e/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=bMraAaMH_qBoTYwmDEvGNpq5Z4fBQTPf2Aq8vbLDwdY",
+					"body": {
+						"subject": "No Files Found in ADLS",
+						"message": "No files were found in the source folder on @{utcNow()}."
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Container": {
+				"type": "string",
+				"defaultValue": "containerfiles"
+			},
+			"Folder": {
+				"type": "string",
+				"defaultValue": "inputsource/files"
+			},
+			"FileName": {
+				"type": "string",
+				"defaultValue": "*.csv"
+			}
+		},
+		"annotations": []
+	}
+}
