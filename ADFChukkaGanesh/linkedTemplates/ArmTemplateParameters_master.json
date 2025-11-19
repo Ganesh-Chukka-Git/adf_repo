@@ -5,11 +5,17 @@
 		"factoryName": {
 			"value": "ADFChukkaGanesh"
 		},
+		"BlobStorage_connectionString": {
+			"value": ""
+		},
 		"LS_SQLServer_password": {
 			"value": ""
 		},
 		"LS_blobstorage_connectionString": {
 			"value": ""
+		},
+		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://keyvaultcgy.vault.azure.net/"
 		},
 		"LS_SQLServer_properties_typeProperties_server": {
 			"value": "DESKTOP-8OTJPKL\\CHUKKASQLSERVER"
