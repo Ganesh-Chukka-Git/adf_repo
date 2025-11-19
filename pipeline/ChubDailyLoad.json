@@ -50,17 +50,6 @@
 					},
 					"ifFalseActivities": [
 						{
-							"name": "Wait for some time",
-							"type": "Wait",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"waitTimeInSeconds": 10
-							}
-						}
-					],
-					"ifTrueActivities": [
-						{
 							"name": "No Files Send Email",
 							"type": "WebActivity",
 							"dependsOn": [],
@@ -79,6 +68,17 @@
 									"subject": "No Files Found in ADLS",
 									"message": "No files were found in the source folder on @{utcNow()}."
 								}
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Wait For Sometime",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
 							}
 						}
 					]
