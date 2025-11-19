@@ -19,7 +19,9 @@
 						"referenceName": "DS_GetFiles",
 						"type": "DatasetReference"
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
 						"enablePartitionDiscovery": false
@@ -27,6 +29,48 @@
 					"formatSettings": {
 						"type": "DelimitedTextReadSettings"
 					}
+				}
+			},
+			{
+				"name": "File Available Or Not",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(length(activity('GetMetadata1').output.childItems), 0)\n",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "No Files Send Email",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://prod-13.centralindia.logic.azure.com:443/workflows/585813d80b06425aa07b07ca8815d00e/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=bMraAaMH_qBoTYwmDEvGNpq5Z4fBQTPf2Aq8vbLDwdY",
+								"body": {
+									"subject": "No Files Found in ADLS",
+									"message": "No files were found in the source folder on @{utcNow()}."
+								}
+							}
+						}
+					]
 				}
 			}
 		],
