@@ -38,6 +38,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -157,6 +158,52 @@
 						"subject": "No Files Found in ADLS",
 						"message": "No files were found in the source folder on @{utcNow()}."
 					}
+				}
+			},
+			{
+				"name": "Load Each File to Stg",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "File Available Or Not",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata Files').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Check Files Already Loaded Or Not",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": "SELECT COUNT(*) AS FileCount \nFROM dbo.LoadedFiles \nWHERE FileName = '@{item().name}'\n",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "DS_LookFilesLoadedOrNot",
+									"type": "DatasetReference"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
