@@ -17,17 +17,7 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "DS_GetFileNames",
-						"type": "DatasetReference",
-						"parameters": {
-							"Container": {
-								"value": "@pipeline().parameters.ContainerSource",
-								"type": "Expression"
-							},
-							"Folder": {
-								"value": "@pipeline().parameters.FolderSource",
-								"type": "Expression"
-							}
-						}
+						"type": "DatasetReference"
 					},
 					"fieldList": [
 						"childItems"
