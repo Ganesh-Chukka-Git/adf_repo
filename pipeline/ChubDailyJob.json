@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('Get Metadata Files').output.exists, true)",
+						"value": "@greater(length(activity('Get Metadata Files').output.childItems), 0)\n",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
