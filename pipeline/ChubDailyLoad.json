@@ -288,6 +288,10 @@
 												"referenceName": "DS_SyncFileToStg",
 												"type": "DatasetReference",
 												"parameters": {
+													"schema": {
+														"value": "@pipeline().parameters.STagingSchemaName",
+														"type": "Expression"
+													},
 													"TableName": {
 														"value": "@concat(\n    'STG_',\n    split(\n        substring(item().name, 0, lastIndexOf(item().name, '_')),\n        '_'\n    )[0]\n)\n",
 														"type": "Expression"
