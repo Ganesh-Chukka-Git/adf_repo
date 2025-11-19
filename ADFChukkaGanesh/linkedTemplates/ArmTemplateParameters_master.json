@@ -14,6 +14,9 @@
 		"LS_blobstorage_connectionString": {
 			"value": ""
 		},
+		"LS_DeleteBlobFiles_connectionString": {
+			"value": ""
+		},
 		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
 			"value": "https://keyvaultcgy.vault.azure.net/"
 		},
@@ -25,6 +28,18 @@
 		},
 		"LS_SQLServer_properties_typeProperties_userName": {
 			"value": "sa"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Container": {
+			"value": "containerfiles"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder": {
+			"value": "inputsource/files"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName": {
+			"value": "*.csv"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName": {
+			"value": "STG"
 		},
 		"containerUri": {
 			"value": ""

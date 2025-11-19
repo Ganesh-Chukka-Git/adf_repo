@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_blobstorage'"
 		},
+		"LS_DeleteBlobFiles_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_DeleteBlobFiles'"
+		},
 		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://keyvaultcgy.vault.azure.net/"
@@ -34,6 +38,22 @@
 		"LS_SQLServer_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sa"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Container": {
+			"type": "string",
+			"defaultValue": "containerfiles"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder": {
+			"type": "string",
+			"defaultValue": "inputsource/files"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName": {
+			"type": "string",
+			"defaultValue": "*.csv"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName": {
+			"type": "string",
+			"defaultValue": "STG"
 		},
 		"containerUri": {
 			"type": "string",
@@ -68,6 +88,9 @@
 					"LS_blobstorage_connectionString": {
 						"value": "[parameters('LS_blobstorage_connectionString')]"
 					},
+					"LS_DeleteBlobFiles_connectionString": {
+						"value": "[parameters('LS_DeleteBlobFiles_connectionString')]"
+					},
 					"LS_SQLServer_password": {
 						"value": "[parameters('LS_SQLServer_password')]"
 					},
@@ -82,6 +105,18 @@
 					},
 					"LS_SQLServer_properties_typeProperties_userName": {
 						"value": "[parameters('LS_SQLServer_properties_typeProperties_userName')]"
+					},
+					"Daily Chubb Job_properties_ChubDailyLoad_parameters_Container": {
+						"value": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_Container')]"
+					},
+					"Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder": {
+						"value": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder')]"
+					},
+					"Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName": {
+						"value": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName')]"
+					},
+					"Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName": {
+						"value": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName')]"
 					}
 				}
 			},

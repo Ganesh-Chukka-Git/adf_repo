@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_blobstorage'"
 		},
+		"LS_DeleteBlobFiles_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_DeleteBlobFiles'"
+		},
 		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://keyvaultcgy.vault.azure.net/"
@@ -34,6 +38,22 @@
 		"LS_SQLServer_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sa"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Container": {
+			"type": "string",
+			"defaultValue": "containerfiles"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder": {
+			"type": "string",
+			"defaultValue": "inputsource/files"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName": {
+			"type": "string",
+			"defaultValue": "*.csv"
+		},
+		"Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName": {
+			"type": "string",
+			"defaultValue": "STG"
 		}
 	},
 	"variables": {
@@ -492,9 +512,10 @@
 													},
 													"logStorageSettings": {
 														"linkedServiceName": {
-															"referenceName": "LS_blobstorage",
+															"referenceName": "LS_DeleteBlobFiles",
 															"type": "LinkedServiceReference"
-														}
+														},
+														"path": "deletecontainer/deletefiles"
 													},
 													"enableLogging": true,
 													"storeSettings": {
@@ -694,7 +715,7 @@
 				"[concat(variables('factoryId'), '/datasets/DS_SourceFiletoStg')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SyncFileToStg')]",
 				"[concat(variables('factoryId'), '/datasets/DS_DeleteFiles')]",
-				"[concat(variables('factoryId'), '/linkedServices/LS_blobstorage')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_DeleteBlobFiles')]"
 			]
 		},
 		{
@@ -1435,6 +1456,50 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_DeleteFiles')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_blobstorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Container": {
+						"type": "string"
+					},
+					"Folder": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Folder",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().Container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_blobstorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_DeleteSourceFiles')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1744,6 +1809,104 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Daily Chub Job')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ChubDailyLoad",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2025-11-19T16:25:00",
+						"endTime": "2025-11-19T18:00:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ChubDailyLoad')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Daily Chubb Job')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ChubDailyLoad",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"Container": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_Container')]",
+							"Folder": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder')]",
+							"FileName": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName')]",
+							"STagingSchemaName": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2025-11-19T16:25:00",
+						"endTime": "2025-11-19T18:00:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ChubDailyLoad')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Daily Job Chub')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ChubDailyLoad",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 5,
+						"startTime": "2025-11-19T16:18:00",
+						"endTime": "2025-11-30T10:39:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ChubDailyLoad')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/SeilfHostedIR')]",
 			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
 			"apiVersion": "2018-06-01",
@@ -1765,48 +1928,17 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_DeleteFiles')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/LS_DeleteBlobFiles')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_blobstorage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Container": {
-						"type": "string"
-					},
-					"Folder": {
-						"type": "string"
-					},
-					"FileName": {
-						"type": "string"
-					}
-				},
 				"annotations": [],
-				"type": "Binary",
+				"type": "AzureBlobStorage",
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": {
-							"value": "@dataset().FileName",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().Folder",
-							"type": "Expression"
-						},
-						"container": {
-							"value": "@dataset().Container",
-							"type": "Expression"
-						}
-					}
+					"connectionString": "[parameters('LS_DeleteBlobFiles_connectionString')]"
 				}
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_blobstorage')]"
-			]
+			"dependsOn": []
 		}
 	]
 }
