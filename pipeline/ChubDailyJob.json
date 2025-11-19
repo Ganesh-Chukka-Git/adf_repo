@@ -26,10 +26,6 @@
 							"Folder": {
 								"value": "@pipeline().parameters.FolderSource",
 								"type": "Expression"
-							},
-							"FileName": {
-								"value": "*.csv",
-								"type": "Expression"
 							}
 						}
 					},
