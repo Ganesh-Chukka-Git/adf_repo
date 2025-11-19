@@ -193,7 +193,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "SqlServerSource",
-									"sqlReaderQuery": "SELECT COUNT(*) AS FileCount \nFROM dbo.LoadedFiles \nWHERE FileName = '@{item().name}'\n",
+									"sqlReaderQuery": {
+										"value": "SELECT COUNT(*) AS FileCount \nFROM [ETL].[FileData]\nWHERE FileName = '@{item().name}'\n",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
