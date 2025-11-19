@@ -134,11 +134,11 @@
 			},
 			"Folder": {
 				"type": "string",
-				"defaultValue": "inputsource"
+				"defaultValue": "inputsource/files"
 			},
 			"FileName": {
 				"type": "string",
-				"defaultValue": "files"
+				"defaultValue": "*.csv"
 			}
 		},
 		"annotations": []
