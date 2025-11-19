@@ -86,6 +86,29 @@
 									"type": "Expression"
 								}
 							}
+						},
+						{
+							"name": "Files Not Available So Job Fails",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "Files Not Available",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "Source Files Not Available",
+									"type": "Expression"
+								},
+								"errorCode": {
+									"value": "Files Not Available",
+									"type": "Expression"
+								}
+							}
 						}
 					],
 					"ifTrueActivities": [
