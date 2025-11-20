@@ -11,13 +11,17 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'BlobStorage'"
 		},
+		"LS_DeleteBlobFiles_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_DeleteBlobFiles'"
+		},
 		"LS_blobstorage_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_blobstorage'"
 		},
-		"LS_DeleteBlobFiles_connectionString": {
+		"LS_AzureDatabricks_accessToken": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'LS_DeleteBlobFiles'"
+			"metadata": "Secure string for 'accessToken' of 'LS_AzureDatabricks'"
 		},
 		"LS_SQLServer_password": {
 			"type": "secureString",
@@ -38,22 +42,6 @@
 		"LS_SQLServer_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sa"
-		},
-		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Container": {
-			"type": "string",
-			"defaultValue": "containerfiles"
-		},
-		"Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder": {
-			"type": "string",
-			"defaultValue": "inputsource/files"
-		},
-		"Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName": {
-			"type": "string",
-			"defaultValue": "*.csv"
-		},
-		"Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName": {
-			"type": "string",
-			"defaultValue": "STG"
 		}
 	},
 	"variables": {
@@ -119,6 +107,19 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/LS_DeleteBlobFiles')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_DeleteBlobFiles_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/LS_blobstorage')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -153,14 +154,23 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/LS_DeleteBlobFiles')]",
+			"name": "[concat(parameters('factoryName'), '/LS_AzureDatabricks')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"type": "AzureBlobStorage",
+				"type": "AzureDatabricks",
 				"typeProperties": {
-					"connectionString": "[parameters('LS_DeleteBlobFiles_connectionString')]"
+					"domain": "https://adb-3464057369536659.19.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('LS_AzureDatabricks_accessToken')]"
+					},
+					"newClusterNodeType": "Standard_DS4_v2",
+					"newClusterNumOfWorker": "1",
+					"newClusterVersion": "10.4.x-scala2.12",
+					"clusterOption": "Fixed",
+					"newClusterInitScripts": []
 				}
 			},
 			"dependsOn": []
@@ -421,6 +431,42 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/SeilfHostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DatabricksJob')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hourly Chubb Job",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/ganeshchukka4226@gmail.com/Chubb Daily Job"
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_AzureDatabricks",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_AzureDatabricks')]"
 			]
 		},
 		{
@@ -1865,73 +1911,6 @@
 						"interval": 15,
 						"startTime": "2025-11-19T16:25:00",
 						"endTime": "2025-11-19T18:00:00",
-						"timeZone": "India Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/ChubDailyLoad')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Daily Chubb Job')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "ChubDailyLoad",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"Container": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_Container')]",
-							"Folder": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_Folder')]",
-							"FileName": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_FileName')]",
-							"STagingSchemaName": "[parameters('Daily Chubb Job_properties_ChubDailyLoad_parameters_STagingSchemaName')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 15,
-						"startTime": "2025-11-19T16:25:00",
-						"endTime": "2025-11-19T18:00:00",
-						"timeZone": "India Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/ChubDailyLoad')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Daily Job Chub')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "ChubDailyLoad",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 5,
-						"startTime": "2025-11-19T16:18:00",
-						"endTime": "2025-11-30T10:39:00",
 						"timeZone": "India Standard Time"
 					}
 				}

@@ -8,13 +8,16 @@
 		"BlobStorage_connectionString": {
 			"value": ""
 		},
+		"LS_DeleteBlobFiles_connectionString": {
+			"value": ""
+		},
 		"LS_SQLServer_password": {
 			"value": ""
 		},
 		"LS_blobstorage_connectionString": {
 			"value": ""
 		},
-		"LS_DeleteBlobFiles_connectionString": {
+		"LS_AzureDatabricks_accessToken": {
 			"value": ""
 		},
 		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
