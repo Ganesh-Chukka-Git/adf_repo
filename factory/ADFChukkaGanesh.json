@@ -1,5 +1,13 @@
 {
 	"name": "ADFChukkaGanesh",
+	"properties": {
+		"globalParameters": {
+			"JoinDate": {
+				"type": "string",
+				"value": "12-11-2025"
+			}
+		}
+	},
 	"location": "centralindia",
 	"identity": {
 		"type": "SystemAssigned",
